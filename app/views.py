@@ -6,8 +6,9 @@ This file creates your application.
 """
 
 from app import app, db
-from flask import render_template, request, jsonify, send_file
+from flask import make_response, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
+from flask_wtf.csrf import generate_csrf
 from app.models import Movie
 from app.forms import MovieForm
 import os
@@ -27,7 +28,7 @@ def movies():
 
     if form.validate_on_submit():
         filename = secure_filename(form.poster.data.filename)
-        form.poster.data.save(os.path.join(app.config['UPLAOD_FOLDER'], filename))
+        form.poster.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
         added_movie = Movie(
             title= form.title.data,
@@ -46,6 +47,29 @@ def movies():
         return jsonify(response), 201
     else:
         return jsonify({"errors": form_errors(form)}), 400
+    
+@app.route('/api/v1/movies', methods=['GET'])
+def get_movies():
+    movies = Movie.query.all()
+    """movie_list = []
+    for m in movies:
+        movie_data={
+            'id': m.id,
+            'title': m.title,
+            'description': m.description,
+            'poster': m.poster
+        }
+        movie_list.append(movie_data)"""
+    return jsonify({'movies': [ {'id': m.id, 'title': m.title, 'description': m.description, 'poster': m.poster}] for m in movies})
+
+@app.route('/api/v1/csrf-token', methods=['GET'])
+def get_csrf():
+    csrf_token = generate_csrf()
+    return jsonify({'csrf_token': csrf_token})
+
+@app.route('/api/v1/posters/<filename>')
+def get_poster(filename):
+    return send_from_directory(os.path.join(os.getcwd(), app.config['UPLOAD_FOLDER']), filename)
 
 ###
 # The functions below should be applicable to all Flask apps.
@@ -86,6 +110,6 @@ def add_header(response):
 
 
 @app.errorhandler(404)
-def page_not_found(error):
+def page_not_found(e):
     """Custom 404 page."""
-    return render_template('404.html'), 404
+    return make_response(jsonify({'error':'Not Found'}), 404)
