@@ -9,6 +9,10 @@
 </template>
 <style>
     #title{
-        margin: 15px 50px 0px 50px;
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        color: #1f2937;
     }
 </style>

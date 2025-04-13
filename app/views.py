@@ -51,7 +51,7 @@ def movies():
 @app.route('/api/v1/movies', methods=['GET'])
 def get_movies():
     movies = Movie.query.all()
-    """movie_list = []
+    movie_list = []
     for m in movies:
         movie_data={
             'id': m.id,
@@ -59,8 +59,8 @@ def get_movies():
             'description': m.description,
             'poster': m.poster
         }
-        movie_list.append(movie_data)"""
-    return jsonify({'movies': [ {'id': m.id, 'title': m.title, 'description': m.description, 'poster': m.poster}] for m in movies})
+        movie_list.append(movie_data)
+    return jsonify({'movies':movie_list})
 
 @app.route('/api/v1/csrf-token', methods=['GET'])
 def get_csrf():
